@@ -1,10 +1,12 @@
 ﻿Public Class Form1
-    '   Brock University
+
+    'Brock University
     'Faculty of Mathematics & Science
     'Mathematics & Statistics Department
 
     'Course Title: Math Integrated With Computers & Application I
-    'Course Code 1P40 
+    'Course Code 1P40
+    'Assignment 02
 
     'Instructor: Jesse Larone
     'Lab Instructors: Jesse Larone And Neil Marshall
@@ -13,53 +15,148 @@
     'Brock_ID: 6967483
     'Campus_ID: hr19ut
     'Lab_ID: 02 
-
-    Private Sub CheckedListBox1_SelectedIndexChanged(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
-
-    End Sub
-
-    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles LabelTotalPrimesTitle.Click
-
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs)
-
-
-    End Sub
-
-    Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub Chart1_Click(sender As Object, e As EventArgs) Handles Chart1.Click
-
-    End Sub
-
-    Private Sub Label2_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
     End Sub
 
-    Private Sub TextBox2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
 
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles SecretBtn.Click
+        Dim Msg, Style, Title
+        Msg = "No Key?! No Problemo! Leave >> d <<  blank..."
+        Style = vbYes
+        Title = "CryptoCracker says:"
+        MsgBox(Msg, Style, Title)
+    End Sub
 
-        LabelStatus.Text = "Generating Primes"
-        Dim maxNumber As Long = Val(TextBox1.Text)
-        Dim maxPrime As Long = 2
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles DecodeBtn.Click
+        Dim rd, n, d, nn As Long
+        n = CLng(decoden.Text)
+
+
+        nn = CLng(decodem.Text)
+
+        'Secret Feature here
+        If decoded.Text = "" Then
+            d = CrackD(n)
+            decoded.Text = d.ToString
+        Else
+            d = CLng(decoded.Text)
+        End If
+
+        rd = ComputeCrypto(nn, d, n)
+        decodemLabel.Text = rd.ToString
+    End Sub
+    Public Function CrackD(n As Long) As Long
+        Dim p, q, d, c As Long
+        Dim possiblePrimes
+
+        possiblePrimes = BuildPrimeStack(2, Math.Ceiling(Math.Sqrt(n)))
+
+        Do
+            p = possiblePrimes.pop()
+        Loop While (n Mod p <> 0) 'Or (p = 2)
+
+        'p is cracked, q is easy
+        q = n / p
+
+
+        d = 1
+        c = CLng(encodee.Text)
+        While (c * d) Mod LCM((p - 1), (q - 1)) <> 1
+            d += 1
+        End While
+
+        Return d
+
+
+    End Function
+
+
+
+    Private Sub Label2_Click(sender As Object, e As EventArgs) Handles Label2.Click
+
+    End Sub
+
+    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
+
+    End Sub
+
+    Private Sub TextBox3_TextChanged(sender As Object, e As EventArgs)
+
+    End Sub
+
+    Private Sub EncodeBtn_Click(sender As Object, e As EventArgs) Handles EncodeBtn.Click
+        Dim re, n, c, m As Long
+        n = CLng(encoden.Text)
+        c = CLng(encodee.Text)
+        m = CLng(encodem.Text)
+        re = ComputeCrypto(m, c, n)
+        encodemLabel.Text = re.ToString
+        decodem.Text = re.ToString
+        decoden.Text = encoden.Text
+    End Sub
+
+    Public Function ComputeCrypto(ByVal base As Long, ByVal exponent As Long, ByVal modulus As Long) As Long
+        Dim i As Integer
+        Dim output As Long
+        output = base
+        For i = 2 To exponent
+            output = output * base Mod modulus
+        Next
+        Return output
+    End Function
+
+    Private Sub GenBtn_Click(sender As Object, e As EventArgs) Handles GenBtn.Click
+        Dim n, c, d, p1, p2, phiOfn
+        Dim myPrimeList
+        'Clean empty fields
+        encodem.Text = ""
+        decodem.Text = ""
+
+        myPrimeList = BuildPrimeStack(100, 999).ToArray
+        'Let's pick 2 random prime numbers p and q by randomizing the array's index
+        p1 = 2
+        p2 = 2
+        While p1 = p2
+            p1 = myPrimeList(Int((myPrimeList.Length) * Rnd()))
+            p2 = myPrimeList(Int((myPrimeList.Length) * Rnd()))
+        End While
+
+        'Define n as p1*p2 and assign boxes and set labels for primes
+        n = p1 * p2
+        encoden.Text = n.ToString
+        decoden.Text = n.ToString
+        PrimeOneLabel.Text = p1.ToString
+        PrimeTwoLabel.Text = p2.ToString
+
+        'Calculate phiOfn as (p1 - 1) times (p2 - 1), each factor is (p^1 - p^0)
+        phiOfn = (p1 - 1) * (p2 - 1)
+
+        'Calculate c, part of the public key (n, c)
+        c = 2
+        While (GCD(c, phiOfn) <> 1) And (c < phiOfn)  'And to avoid infinite loop
+            c += 1
+        End While
+        encodee.Text = c.ToString
+
+
+        'Calculate d, part of the private key(n, d)
+        d = 1
+        While (c * d) Mod phiOfn <> 1 'LCM((p1 - 1), (p2 - 1)) <> 1 
+            d += 1
+        End While
+        decoded.Text = d.ToString
+
+
+    End Sub
+
+    'This functions returns a stack with prime numbers from minNumber to maxNumber
+    Public Function BuildPrimeStack(minNumber As Long, maxNumber As Long) As Stack
         Dim primeList(maxNumber + 1) As Boolean '+1 to avoid outofbounds pointer
-        Dim remainderList(10) As Integer  '0 to 9 is the last unit algarism
-        Dim percentualList(10) As Double  '0 to 9 is the last unit algarism
-        Dim p, i, primeCounter As Integer
+        Dim p, i As Long
 
         'primes start at 2 
         primeList(0) = False
@@ -82,97 +179,57 @@
             p += 1
         End While
 
-
-
-        'add to the list
-        LabelStatus.Text = "Generating Chart"
-        primeCounter = 0
-        ListBox1.Items.Clear()
-        For p = 2 To maxNumber
+        'Create a Stack of prime numbers with 3 digits then convert to Array
+        Dim primeStack As Stack = New Stack()
+        For p = minNumber To maxNumber
             If primeList(p) = True Then
-                maxPrime = p
-                primeCounter += 1
-                ListBox1.Items.Add(p)
-                'compute distribution of this prime
-                'get the last digit
-                Dim pString = p.ToString()
-                Dim remainder As Integer = Val(pString.Chars(Len(pString) - 1))
-                remainderList(remainder) += 1
+                primeStack.Push(p)
             End If
         Next
+        Return primeStack
+    End Function
 
 
-        LabelStatus.Text = "Generating Report"
+    'This function returns the gcd(a,b) using the recursive Euclidean Algorithm
 
-        'build the histogram chart
-        For p = 1 To 9
-            Chart1.Series("Residual").Points.AddXY(p, remainderList(p))
-            percentualList(p) = Math.Round(remainderList(p) / primeCounter, 5, MidpointRounding.AwayFromZero)
-        Next
+    Public Function GCD(numberA As Integer, numberB As Integer) As Integer
+        If numberA = 0 Then Return numberB
+        Return GCD(numberB Mod numberA, numberA)
+    End Function
 
+    'This function returns the lcm(a,b) using lcm(a,b)*gcd(a,b) = abs(a*b)
+    Public Function LCM(numberA As Integer, numberB As Integer) As Integer
+        Return (numberA * numberB) / GCD(numberA, numberB)
+    End Function
 
-        'generating report
-        LabelTotalPrimes.Text = primeCounter
-        LabelMaxPrime.Text = maxPrime
-        End1.Text = percentualList(1) & "   Error: " & Math.Round((percentualList(1) - 0.25) / 0.25, 5, MidpointRounding.AwayFromZero) & " %"
-        End3.Text = percentualList(3) & "   Error: " & Math.Round((percentualList(3) - 0.25) / 0.25, 5, MidpointRounding.AwayFromZero) & " %"
-        End7.Text = percentualList(7) & "   Error: " & Math.Round((percentualList(7) - 0.25) / 0.25, 5, MidpointRounding.AwayFromZero) & " %"
-        End9.Text = percentualList(9) & "   Error: " & Math.Round((percentualList(9) - 0.25) / 0.25, 5, MidpointRounding.AwayFromZero) & " %"
-        Expected.Text = "0.25000"
-
-
-        'final status
-        LabelStatus.Text = "All Done!"
-        Beep()
+    Private Sub Label3_Click(sender As Object, e As EventArgs) Handles Label3.Click
 
     End Sub
 
-
-    Private Sub TextBox1_TextChanged_1(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
+    Private Sub Operation_Click(sender As Object, e As EventArgs)
 
     End Sub
 
-    Private Sub Label3_Click(sender As Object, e As EventArgs)
+    Private Sub Label10_Click(sender As Object, e As EventArgs) Handles Label10.Click
+    End Sub
+
+    Private Sub TextBox3_TextChanged_1(sender As Object, e As EventArgs) Handles decoden.TextChanged
+
+    End Sub
+
+    Private Sub Label11_Click(sender As Object, e As EventArgs) Handles Label11.Click
+
+    End Sub
+
+    Private Sub Label14_Click(sender As Object, e As EventArgs) Handles Label14.Click
+
+    End Sub
+
+    Private Sub Label16_Click(sender As Object, e As EventArgs) Handles Label16.Click
 
     End Sub
 
     Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
-
-    End Sub
-
-    Private Sub Label7_Click(sender As Object, e As EventArgs) Handles Label7.Click
-
-    End Sub
-
-    Private Sub Label9_Click(sender As Object, e As EventArgs) Handles LabelStatusTitle.Click
-
-    End Sub
-
-    Private Sub Label1_Click_1(sender As Object, e As EventArgs) Handles Label1.Click
-
-    End Sub
-
-    Private Sub LabelMaxPrimeTitle_Click(sender As Object, e As EventArgs) Handles LabelMaxPrimeTitle.Click
-
-    End Sub
-
-    Private Sub Label9_Click_1(sender As Object, e As EventArgs) Handles End1Title.Click
-
-    End Sub
-
-    Private Sub Label6_Click(sender As Object, e As EventArgs) Handles End1.Click
-
-    End Sub
-
-    Private Sub Label9_Click_2(sender As Object, e As EventArgs) Handles ExpectedPercentualTitle.Click
-
-    End Sub
-
-    Private Sub Label6_Click_1(sender As Object, e As EventArgs) Handles Expected.Click
-
-    End Sub
-
-    Private Sub End3_Click(sender As Object, e As EventArgs) Handles End3.Click
 
     End Sub
 End Class
