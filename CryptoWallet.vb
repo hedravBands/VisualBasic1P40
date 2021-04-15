@@ -1,4 +1,4 @@
-﻿Imports System.IO 'Reading from file
+Imports System.IO 'Reading from file
 Imports System.Security.Cryptography 'Compute sha256
 Imports System.Text 'Encoding and StringBuilder
 Imports FireSharp.Config 'Set up Firebase permitions
